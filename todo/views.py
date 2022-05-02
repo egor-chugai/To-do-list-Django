@@ -8,35 +8,59 @@ from .models import Todo
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 
+
 def home(request):
     return render(request, 'todo/home.html')
 
+
 def signupuser(request):
     if request.method == 'GET':
-        return render(request, 'todo/signupuser.html', {'form':UserCreationForm()})
+        return render(
+            request, 'todo/signupuser.html', {'form': UserCreationForm()}
+        )
     else:
         if request.POST['password1'] == request.POST['password2']:
             try:
-                user = User.objects.create_user(request.POST['username'], password=request.POST['password1'])
+                user = User.objects.create_user(
+                    request.POST['username'], password=request.POST['password1']
+                )
                 user.save()
                 login(request, user)
                 return redirect('currenttodos')
             except IntegrityError:
                 return render(request, 'todo/signupuser.html',
-                              {'form': UserCreationForm(), 'error': 'Такое имя пользователя уже используется'})
+                              {'form': UserCreationForm(),
+                               'error': 'Такое имя пользователя уже используется'})
         else:
-            return render(request, 'todo/signupuser.html', {'form':UserCreationForm(), 'error':'Пароль не совпадает'})
+            return render(
+                request,
+                'todo/signupuser.html',
+                {'form': UserCreationForm(), 'error': 'Пароль не совпадает'}
+            )
+
 
 def loginuser(request):
     if request.method == 'GET':
-        return render(request, 'todo/loginuser.html', {'form':AuthenticationForm()})
+        return render(
+            request, 'todo/loginuser.html', {'form': AuthenticationForm()}
+        )
     else:
-        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
+        user = authenticate(
+            request,
+            username=request.POST['username'],
+            password=request.POST['password']
+        )
         if user is None:
-            return render(request, 'todo/loginuser.html', {'form': AuthenticationForm(), 'error':'Пользователя с таким логином и паролем не существует'})
+            return render(
+                request,
+                'todo/loginuser.html',
+                {'form': AuthenticationForm(),
+                 'error': 'Пользователя с таким логином и паролем не существует'}
+            )
         else:
             login(request, user)
             return redirect('currenttodos')
+
 
 @login_required
 def logoutuser(request):
@@ -44,10 +68,13 @@ def logoutuser(request):
         logout(request)
         return redirect('home')
 
+
 @login_required
 def createtodo(request):
     if request.method == 'GET':
-        return render(request, 'todo/createtodo.html', {'form': TodoForm()})
+        return render(
+            request, 'todo/createtodo.html', {'form': TodoForm()}
+        )
     else:
         try:
             form = TodoForm(request.POST)
@@ -56,17 +83,27 @@ def createtodo(request):
             newtodo.save()
             return redirect('currenttodos')
         except ValueError:
-            return render(request, 'todo/createtodo.html', {'form': TodoForm(), 'error': 'Переданы неверные данные, попробуйте еще раз'})
+            return render(
+                request,
+                'todo/createtodo.html',
+                {'form': TodoForm(),
+                 'error': 'Переданы неверные данные, попробуйте еще раз'}
+            )
+
 
 @login_required
 def currenttodos(request):
     todos =Todo.objects.filter(user=request.user, datecompleted__isnull=True)
     return render(request, 'todo/currenttodos.html', {'todos':todos})
 
+
 @login_required
 def completedtodos(request):
-    todos =Todo.objects.filter(user=request.user, datecompleted__isnull=False).order_by('-datecompleted')
+    todos =Todo.objects.filter(
+        user=request.user, datecompleted__isnull=False
+    ).order_by('-datecompleted')
     return render(request, 'todo/completedtodos.html', {'todos':todos})
+
 
 @login_required
 def viewtodo(request, todo_pk):
@@ -80,7 +117,12 @@ def viewtodo(request, todo_pk):
             form.save()
             return redirect('currenttodos')
         except ValueError:
-            return render(request, 'todo/viewtodo.html', {'todo': todo, 'form': form, 'error':'Bad info'})
+            return render(
+                request,
+                'todo/viewtodo.html',
+                {'todo': todo, 'form': form, 'error': 'Bad info'}
+            )
+
 
 @login_required
 def completetodo(request, todo_pk):
@@ -89,6 +131,7 @@ def completetodo(request, todo_pk):
         todo.datecompleted = timezone.now()
         todo.save()
         return redirect('currenttodos')
+
 
 @login_required
 def deletetodo(request, todo_pk):
