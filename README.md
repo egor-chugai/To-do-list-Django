@@ -1,6 +1,6 @@
-# To-do-list-Django
+# To-do list (Django)
 ### Description
-Website to-do-list. Allows you to create, delete, edit, mark completed your tasks.
+Web to-do list. Allows you to create, delete, edit, mark your completed tasks.
 ### Technologies
 Python 3.9
 Django 2.2.19
